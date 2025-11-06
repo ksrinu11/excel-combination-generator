@@ -50,7 +50,7 @@ And select `City` and `State` for combinations, you'll get:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/excel-combination-generator.git
+git clone https://github.com/ksrinu11/excel-combination-generator.git
 cd excel-combination-generator
 
 # Install dependencies
