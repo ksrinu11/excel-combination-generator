@@ -251,33 +251,30 @@
             // Generate combinations
             const combinations = generateCartesianProduct(selectedColumns.map(col => uniqueValues[col]));
             
-            // Create result data
+            // Create result data - each original row combined with each combination
             resultData = [originalData[0]]; // Header row
             
-            combinations.forEach((combination, combIndex) => {
-                const originalRowIndex = combIndex < (originalData.length - 1) ? combIndex + 1 : null;
-                const newRow = new Array(availableColumns.length).fill('');
+            // For each original data row (skip header)
+            for (let rowIndex = 1; rowIndex < originalData.length; rowIndex++) {
+                const originalRow = originalData[rowIndex];
                 
-                // Set combination values in selected columns
-                selectedColumns.forEach((colIndex, i) => {
-                    newRow[colIndex] = combination[i];
-                });
-                
-                // Set original values in unselected columns (only for existing rows)
-                if (originalRowIndex) {
-                    availableColumns.forEach((col, colIndex) => {
-                        if (!selectedColumns.includes(colIndex)) {
-                            newRow[colIndex] = originalData[originalRowIndex][colIndex] || '';
-                        }
+                // For each combination
+                combinations.forEach(combination => {
+                    const newRow = [...originalRow]; // Copy original row
+                    
+                    // Update selected columns with combination values
+                    selectedColumns.forEach((colIndex, i) => {
+                        newRow[colIndex] = combination[i];
                     });
-                }
-                
-                resultData.push(newRow);
-            });
+                    
+                    resultData.push(newRow);
+                });
+            }
 
             // Show results
+            const totalRows = (originalData.length - 1) * combinations.length; // Exclude header row
             document.getElementById('resultInfo').textContent = 
-                `Generated ${combinations.length} combinations from ${selectedColumns.length} selected columns.`;
+                `Generated ${totalRows} total rows: ${originalData.length - 1} original rows × ${combinations.length} combinations from ${selectedColumns.length} selected columns.`;
             document.getElementById('resultSection').classList.remove('hidden');
         }
 

@@ -66,29 +66,24 @@ async def upload_file(
         # Generate all combinations for selected columns
         combinations = list(itertools.product(*[unique_values[col] for col in columns_for_combination]))
         
-        # Create result DataFrame with the right number of rows
-        num_combinations = len(combinations)
-        num_original_rows = len(df)
+        # Create result by combining each original row with each combination
+        result_rows = []
         
-        # Create empty DataFrame with same structure as original
-        combo_df = pd.DataFrame(index=range(num_combinations), columns=df.columns)
+        for _, original_row in df.iterrows():
+            for combination in combinations:
+                new_row = original_row.copy()
+                
+                # Update only the selected columns with combination values
+                for i, col in enumerate(columns_for_combination):
+                    new_row[col] = combination[i]
+                
+                result_rows.append(new_row)
         
-        # Fill selected columns with combinations
-        for i, combination in enumerate(combinations):
-            for j, col in enumerate(columns_for_combination):
-                combo_df.iloc[i, combo_df.columns.get_loc(col)] = combination[j]
+        # Create final DataFrame
+        combo_df = pd.DataFrame(result_rows)
         
-        # Fill unselected columns with original data (only for existing rows)
-        unselected_columns = [col for col in df.columns if col not in columns_for_combination]
-        for i in range(num_combinations):
-            if i < num_original_rows:
-                # Use original data for this row
-                for col in unselected_columns:
-                    combo_df.iloc[i, combo_df.columns.get_loc(col)] = df.iloc[i][col]
-            else:
-                # Leave empty for extra rows
-                for col in unselected_columns:
-                    combo_df.iloc[i, combo_df.columns.get_loc(col)] = ""
+        # Ensure column order matches original
+        combo_df = combo_df[df.columns]
         
         # Create output directory if it doesn't exist
         output_dir = f"outputs/{output_directory}"
